@@ -33,6 +33,7 @@ We even use Claude Code for ticket triage. It reads the ticket, digs into the co
 
 - [Directory Structure](#directory-structure)
 - [Quick Start](#quick-start)
+- [Working with Worktrees](#working-with-worktrees)
 - [Configuration Reference](#configuration-reference)
   - [CLAUDE.md - Project Memory](#claudemd---project-memory)
   - [settings.json - Hooks & Environment](#settingsjson---hooks--environment)
@@ -176,6 +177,80 @@ description: What this skill does and when to use it. Include keywords users wou
 ```
 
 > **Tip:** The `description` field is critical—Claude uses it to decide when to apply the skill. Include keywords users would naturally mention.
+
+---
+
+## Working with Worktrees
+
+Claude Code has built-in worktree support that lets you run Claude in an isolated copy of your repository. This keeps your main working directory clean while Claude experiments, implements features, or makes sweeping changes.
+
+```bash
+claude --worktree   # or: claude -w
+```
+
+This creates a temporary git worktree on a new branch, starts Claude inside it, and leaves your current branch untouched.
+
+### Why Use Worktrees
+
+- **Safe experimentation** — Claude can make and undo changes freely without touching your working tree
+- **Parallel work** — run multiple Claude sessions on different features simultaneously
+- **Clean merges** — review the worktree branch before merging anything to `main`
+
+### Automatic Environment with direnv
+
+Worktrees need the same Python virtualenv and environment variables as the main repo — but they live in a different directory. Our [`.envrc`](.envrc) handles this automatically via [direnv](https://direnv.net/):
+
+```bash
+# .envrc — works in both the main repo and any worktree
+_main_venv="$(git worktree list --porcelain | awk 'NR==1{print $2}')/.venv"
+export VIRTUAL_ENV="$_main_venv"
+PATH_add "$_main_venv/bin"
+
+_main_worktree="$(git worktree list --porcelain | awk 'NR==1{print $2}')"
+dotenv_if_exists "$_main_worktree/.env"
+dotenv_if_exists ".env"
+```
+
+When direnv loads this in a worktree, it automatically:
+- Activates the **main repo's `.venv`** — no need to reinstall dependencies per worktree
+- Loads the **main repo's `.env`** — secrets and config are inherited without copying
+- Loads a local `.env` if one exists in the worktree (for overrides)
+
+To enable this, install direnv and hook it into your shell:
+
+```bash
+# macOS
+brew install direnv
+
+# Ubuntu/Debian
+sudo apt install direnv
+
+# Add to ~/.zshrc or ~/.bashrc
+eval "$(direnv hook zsh)"   # or bash
+```
+
+Then allow the `.envrc` once in your project root:
+
+```bash
+direnv allow
+```
+
+Every worktree Claude creates will inherit the right environment automatically from that point on.
+
+### Committing and Merging Back
+
+Once you're happy with the changes in a worktree session, use the [`worktree-commit-merge` skill](.claude/skills/worktree-commit-merge/SKILL.md) to commit the work and merge it back to `main`:
+
+```
+You: we're done, commit and merge to main
+```
+
+Claude will:
+1. Commit all changes in the worktree with a conventional commit message
+2. Merge the worktree branch into `main`
+3. Sync the worktree branch with `main`
+
+The skill triggers automatically when you say things like "commit and merge to master/main" or "we're done with this worktree."
 
 ---
 
