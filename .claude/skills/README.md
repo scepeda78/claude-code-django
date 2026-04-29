@@ -1,105 +1,38 @@
 # Claude Code Skills
 
-This directory contains project-specific skills that provide Claude with domain knowledge and best practices for this Django codebase.
+Skills para proyectos Django con un flujo simple: Docker cuando aplique, migraciones antes de localhost y tests relevantes, especialmente en cambios criticos.
 
-## Skills by Category
+## Skills principales
 
-### Meta & Development Tools
-| Skill | Description |
-|-------|-------------|
-| [skill-creator](./skill-creator/SKILL.md) | Guide for creating effective skills that extend Claude's capabilities |
-| [django-extensions](./django-extensions/SKILL.md) | Django-extensions management commands for introspection, debugging, and development |
+| Skill | Uso |
+|-------|-----|
+| [django-docker](./django-docker/SKILL.md) | Docker, Docker Compose, migraciones y localhost |
+| [pytest-django-patterns](./pytest-django-patterns/SKILL.md) | Tests con pytest o `manage.py test` |
+| [systematic-debugging](./systematic-debugging/SKILL.md) | Bugs, errores y tests fallando |
+| [django-models](./django-models/SKILL.md) | Modelos, migraciones, ORM y consultas |
+| [django-forms](./django-forms/SKILL.md) | Formularios y validacion backend |
+| [django-templates](./django-templates/SKILL.md) | Templates, parciales y HTML Django |
+| [htmx-patterns](./htmx-patterns/SKILL.md) | Solo si el proyecto usa HTMX |
+| [celery-patterns](./celery-patterns/SKILL.md) | Tareas en background |
 
-### Workflows
-| Skill | Description |
-|-------|-------------|
-| [onboard](./onboard/SKILL.md) | Onboard Claude to a new task by exploring the codebase and building context |
-| [ticket](./ticket/SKILL.md) | Work on a JIRA/Linear ticket end-to-end |
-| [pr-review](./pr-review/SKILL.md) | Review a pull request using project standards |
-| [pr-summary](./pr-summary/SKILL.md) | Generate a pull request summary for the current branch |
-| [code-quality](./code-quality/SKILL.md) | Run code quality checks and report findings by severity |
-| [docs-sync](./docs-sync/SKILL.md) | Check if documentation is in sync with code |
-| [worktree-commit-merge](./worktree-commit-merge/SKILL.md) | Commit worktree changes, merge into master/main, sync branch |
+## Workflow
 
-### Testing & Debugging
-| Skill | Description |
-|-------|-------------|
-| [pytest-django-patterns](./pytest-django-patterns/SKILL.md) | pytest-django, Factory Boy, fixtures, TDD workflow |
-| [systematic-debugging](./systematic-debugging/SKILL.md) | Four-phase debugging methodology, root cause analysis |
+| Skill | Uso |
+|-------|-----|
+| [onboard](./onboard/SKILL.md) | Entender un proyecto o tarea nueva |
+| [ticket](./ticket/SKILL.md) | Trabajar desde un GitHub Issue o ticket |
+| [code-quality](./code-quality/SKILL.md) | Correr checks configurados y revisar riesgos |
+| [pr-review](./pr-review/SKILL.md) | Revisar un PR |
+| [pr-summary](./pr-summary/SKILL.md) | Preparar resumen de cambios |
+| [worktree-commit-merge](./worktree-commit-merge/SKILL.md) | Commit y merge si el usuario lo pide |
+| [skill-creator](./skill-creator/SKILL.md) | Crear o actualizar skills |
 
-### Django Core
-| Skill | Description |
-|-------|-------------|
-| [django-models](./django-models/SKILL.md) | Model design, QuerySet optimization, signals, migrations |
-| [django-forms](./django-forms/SKILL.md) | Form handling, validation, ModelForm patterns |
-| [django-templates](./django-templates/SKILL.md) | Template inheritance, tags, filters, partials |
+## Reglas
 
-### Frontend & UI
-| Skill | Description |
-|-------|-------------|
-| [htmx-patterns](./htmx-patterns/SKILL.md) | HTMX attributes, partial templates, dynamic UI |
-
-### Background Tasks
-| Skill | Description |
-|-------|-------------|
-| [celery-patterns](./celery-patterns/SKILL.md) | Celery tasks, retry strategies, periodic tasks |
-
-## Skill Combinations for Common Tasks
-
-### Building a New Feature
-1. **django-models** - Design models
-2. **django-forms** - Create forms for user input
-3. **htmx-patterns** - Dynamic UI
-4. **django-templates** - Page templates
-5. **pytest-django-patterns** - Write tests (TDD)
-
-### Building a Background Task
-1. **celery-patterns** - Task definition
-2. **django-models** - Database operations
-3. **pytest-django-patterns** - Task tests
-
-### Debugging an Issue
-1. **systematic-debugging** - Root cause analysis
-2. **pytest-django-patterns** - Write failing test first
-3. **django-extensions** - Use show_urls, list_model_info, shell_plus for investigation
-
-### Creating New Skills
-1. **skill-creator** - Follow the skill creation guide
-2. **django-extensions** - Test your skill with project introspection commands
-
-## How Skills Work
-
-Skills are automatically invoked when Claude recognizes relevant context. Each skill provides:
-
-- **When to Use** - Trigger conditions
-- **Core Patterns** - Best practices and examples
-- **Anti-Patterns** - What to avoid
-- **Integration** - How skills connect
-
-## Adding New Skills
-
-1. Create directory: `.claude/skills/skill-name/`
-2. Add `SKILL.md` (case-sensitive) with YAML frontmatter:
-   ```yaml
-   ---
-   # Required fields
-   name: skill-name              # Lowercase, hyphens, max 64 chars
-   description: What it does and when to use it. Include trigger keywords.  # Max 1024 chars
-
-   # Optional fields
-   allowed-tools: Read, Grep, Glob    # Restrict available tools
-   model: claude-sonnet-4-20250514    # Specific model to use
-   ---
-   ```
-3. Include standard sections: When to Use, Core Patterns, Anti-Patterns, Integration
-4. Add to this README
-5. Add triggers to `.claude/hooks/skill-rules.json`
-
-**Important:** The `description` field is critical—Claude uses semantic matching on it to decide when to apply the skill. Include keywords users would naturally mention.
-
-## Maintenance
-
-- Update skills when patterns change
-- Remove outdated information
-- Add new patterns as they emerge
-- Keep examples current with codebase
+- Las skills sugieren contexto, no reemplazan leer el repo.
+- No asumir `uv`, `ruff`, `pyright`, Celery, HTMX o GitHub Actions si el proyecto no los usa.
+- El workflow de ramas esta bien y puede usarse como flujo normal para cambios medianos.
+- GitHub Actions se pueden proponer como mejora, pero no crearlas sin confirmacion.
+- Para cambios criticos, agregar o actualizar tests.
+- Antes de entregar para revision local: migrar, correr tests relevantes y levantar localhost.
+- Mantener la comunicacion simple y directa.

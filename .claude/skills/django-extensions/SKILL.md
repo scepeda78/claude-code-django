@@ -5,7 +5,7 @@ description: Django-extensions management commands for project introspection, de
 
 # Django Extensions
 
-This project has django-extensions installed. Use these commands to understand and interact with the Django project.
+Use these commands only if `django-extensions` is installed in the project. If a command is not available, fall back to normal Django commands and code search.
 
 ## Introspection
 

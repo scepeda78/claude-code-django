@@ -68,6 +68,11 @@ Use database constraints to prevent duplicate processing
 
 ## Commands
 
-- Worker: `uv run celery -A config worker -l info`
-- Beat: `uv run celery -A config beat -l info`
-- Monitoring: `uv run celery -A config flower`
+- Worker: `celery -A config worker -l info`
+- Beat: `celery -A config beat -l info`
+- Monitoring: `celery -A config flower`
+
+With Docker Compose:
+
+- Worker: `docker compose exec web celery -A config worker -l info`
+- Beat: `docker compose exec web celery -A config beat -l info`

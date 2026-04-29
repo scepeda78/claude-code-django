@@ -1,31 +1,25 @@
 ---
 name: docs-sync
-description: Check if documentation is in sync with code. Use when the user wants to verify that documentation matches current code, find outdated docs, or audit documentation accuracy. Triggers on requests like "check docs", "sync documentation", "are the docs up to date", "/docs-sync".
+description: Check if documentation is in sync with Django code. Use when the user asks to verify docs, README files, or setup instructions.
 ---
 
-# Documentation Sync
+# Docs Sync
 
-Check if documentation matches the current code state.
+Revisar que la documentacion no contradiga el codigo.
 
-## Instructions
+## Pasos
 
-1. **Find recent code changes**:
+1. Revisar cambios recientes:
    ```bash
-   git log --since="30 days ago" --name-only --pretty=format: -- "*.py" "*.ts" "*.tsx" | sort -u
+   git diff --stat
+   git diff
    ```
+2. Buscar README o docs relacionados.
+3. Confirmar que comandos, rutas, variables de entorno y nombres de apps sigan siendo correctos.
+4. Reportar solo problemas reales.
 
-2. **Find related documentation**:
-   - Search `/docs/` for files mentioning changed code
-   - Check README files near changed code
-   - Look for docstrings in changed files
+## Criterio
 
-3. **Verify documentation accuracy**:
-   - Do code examples still work?
-   - Are API signatures correct?
-   - Are field types up to date?
-
-4. **Report only actual problems**:
-   - Only flag things that are WRONG, not missing
-   - Don't suggest documentation for documentation's sake
-
-5. **Output a checklist** of documentation that needs updating
+- No pedir documentacion extra por costumbre.
+- No crear docs largas si basta con una nota corta.
+- Si cambia Docker, setup, migraciones o tests, actualizar instrucciones de uso.

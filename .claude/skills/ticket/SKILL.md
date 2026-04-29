@@ -1,69 +1,35 @@
 ---
 name: ticket
-description: Work on a JIRA/Linear ticket end-to-end: read ticket details, explore codebase, create a branch, implement with TDD, run quality checks, update ticket status, and create a PR. Use when the user provides a ticket ID to implement. Triggers on requests like "/ticket PROJ-123", "work on this ticket", "implement PROJ-123".
+description: Work from a GitHub Issue or ticket while keeping scope small. Use when the user provides an issue number, issue URL, or ticket context.
 ---
 
-# Ticket Workflow
+# Ticket / GitHub Issue
 
-Work on the ticket ID provided by the user.
+Usar cuando el usuario pida trabajar desde un issue o ticket.
 
-## Instructions
+## Pasos
 
-### 1. Read the Ticket
+1. Leer el contexto disponible del issue.
+2. Resumir objetivo, criterios y dudas en pocas lineas.
+3. Crear una rama descriptiva si el cambio lo amerita.
+4. Revisar el codigo relacionado.
+5. Implementar solo el alcance del issue.
+6. Agregar tests si el cambio es critico o cambia comportamiento.
+7. Correr migraciones si cambiaron modelos.
+8. Correr tests relevantes.
+9. Levantar localhost para revision.
 
-Fetch and understand the ticket using JIRA/Linear MCP tools:
-- Get ticket details (title, description, acceptance criteria)
-- Check linked tickets or epics
-- Review any comments or attachments
+## GitHub
 
-Summarize: what needs to be done, acceptance criteria, blockers or dependencies.
+- El usuario a veces usa GitHub Issues.
+- GitHub Actions se pueden proponer si ayudan, pero no crearlas sin confirmacion.
+- No crear PR, comentar issue o cambiar estados sin que el usuario lo pida.
 
-### 2. Explore the Codebase
+## Entrega
 
-Before coding:
-- Search for related code
-- Understand the current implementation
-- Identify files that need changes
+Informar:
 
-### 3. Create a Branch
-
-```bash
-git checkout -b {initials}/{ticket-id}-{brief-description}
-```
-
-### 4. Implement the Changes
-
-- Follow project patterns (check relevant skills)
-- Write tests first (TDD)
-- Make incremental commits
-
-### 5. Run Quality Checks
-
-```bash
-uv run ruff check .
-uv run ruff format .
-uv run pyright
-uv run pytest
-```
-
-### 6. Update the Ticket
-
-As you work:
-- Add comments with progress updates
-- Update status (In Progress → In Review)
-- Log any blockers or questions
-
-### 7. Create PR and Link
-
-When ready:
-- Create PR with `gh pr create`
-- Link the PR to the ticket
-- Add ticket ID to PR title: `feat(PROJ-123): description`
-
-### 8. If You Find a Bug
-
-If you discover an unrelated bug while working:
-1. Create a new ticket with details
-2. Link it to the current ticket if related
-3. Note it in the PR description
-4. Continue with original task
+- archivos cambiados;
+- tests ejecutados;
+- migraciones aplicadas o no necesarias;
+- URL local para revisar.

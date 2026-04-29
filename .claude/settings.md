@@ -1,72 +1,50 @@
-# Claude Code Settings Documentation
+# Claude Code Settings
 
-## Environment Variables
+Configuracion pensada para proyectos Django con un flujo simple.
 
-- `INSIDE_CLAUDE_CODE`: "1" - Indicates code is running inside Claude Code
-- `BASH_DEFAULT_TIMEOUT_MS`: "420000" - Default timeout for bash commands (7 minutes)
-- `BASH_MAX_TIMEOUT_MS`: "420000" - Maximum timeout for bash commands (7 minutes)
+## Entorno
 
-## Hooks
+- `INSIDE_CLAUDE_CODE`: indica que los comandos corren dentro de Claude Code.
+- `BASH_DEFAULT_TIMEOUT_MS`: 7 minutos para comandos normales.
+- `BASH_MAX_TIMEOUT_MS`: 7 minutos como maximo.
+
+## Hooks activos
 
 ### UserPromptSubmit
 
-- **Skill Evaluation**: Analyzes prompts and suggests relevant skills
-  - **Script**: `.claude/hooks/skill-eval.sh`
-  - **Behavior**: Matches keywords, file paths, and patterns to suggest skills
-  - **Timeout**: 5s
+- Ejecuta `.claude/hooks/skill-eval.sh`.
+- Sugiere skills relevantes segun el texto del pedido.
+- No bloquea el trabajo.
+- No obliga a usar una skill si no aplica.
 
-### PreToolUse
+## Hooks que no usamos por defecto
 
-- **Main Branch Protection**: Prevents edits on main branch (5s timeout)
-  - **Triggers**: Before editing files with Edit, MultiEdit, or Write tools
-  - **Behavior**: Blocks file edits when on main branch, suggests creating feature branch
+No hay hooks automaticos para formatear, instalar dependencias, correr `ruff`, correr `pyright` o ejecutar tests despues de cada edicion.
 
-### PostToolUse
+Motivo:
 
-1. **Ruff Formatting**: Auto-format Python files (30s timeout)
-   - **Triggers**: After editing `.py` files
-   - **Command**: `uv run ruff format`
-   - **Behavior**: Formats code, suppresses output on success, shows feedback on failure
+- No todos los proyectos usan las mismas herramientas.
+- El flujo preferido es que Claude revise el repo y corra comandos explicitos.
+- Para Django, las verificaciones importantes son migraciones, tests relevantes y localhost funcionando.
 
-2. **Dependency Installation**: Auto-install after dependency changes (60s timeout)
-   - **Triggers**: After editing `pyproject.toml` or `requirements*.txt` files
-   - **Command**: `uv sync`
-   - **Behavior**: Installs dependencies, suppresses output on success, shows feedback on failure
+## Verificacion esperada por tarea
 
-3. **Test Runner**: Run tests after test file changes (90s timeout)
-   - **Triggers**: After editing `test_*.py`, `*_test.py`, or `*/tests/*.py` files
-   - **Command**: `uv run pytest <file> -x -q`
-   - **Behavior**: Runs tests in modified file, shows last 30 lines of output, non-blocking
+Claude debe elegir los comandos segun el proyecto:
 
-4. **Pyright Type Check**: Type-check Python files (30s timeout)
-   - **Triggers**: After editing `.py` files
-   - **Command**: `uv run pyright`
-   - **Behavior**: Shows first 20 lines of errors only, non-blocking, exit 0
-
-5. **Ruff Linting**: Lint Python files (30s timeout)
-   - **Triggers**: After editing `.py` files
-   - **Command**: `uv run ruff check`
-   - **Behavior**: Shows first 20 lines of issues only, non-blocking, exit 0
-
-## Hook Response Format
-
-```json
-{
-  "feedback": "Message to show",
-  "suppressOutput": true,
-  "block": true,
-  "continue": false
-}
+```bash
+python manage.py makemigrations   # solo si cambiaron modelos
+python manage.py migrate
+python manage.py test             # o pytest si el repo lo usa
+python manage.py runserver 0.0.0.0:8000
 ```
 
-## Environment Variables in Hooks
+Con Docker Compose:
 
-- `$CLAUDE_TOOL_INPUT_FILE_PATH`: File being edited
-- `$CLAUDE_TOOL_NAME`: Tool being used
-- `$CLAUDE_PROJECT_DIR`: Project root directory
+```bash
+docker compose build
+docker compose up -d
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py test
+```
 
-## Exit Codes
-
-- `0`: Success
-- `1`: Non-blocking error (shows feedback)
-- `2`: Blocking error (PreToolUse only - blocks the action)
+Si el proyecto tiene `pytest`, `ruff` u otras herramientas configuradas, Claude puede usarlas, pero no debe asumir que existen.

@@ -1,11 +1,11 @@
 ---
 name: worktree-commit-merge
-description: Commit worktree changes, merge into master/main, then sync the worktree branch with master. Trigger when the user says things like "commit and merge to master", "we're done with this worktree, commit and merge", or any similar phrasing. Don't wait for the user to spell out "worktree" — if there are changes and they mention merging to master/main, use this skill.
+description: Commit worktree changes and merge into master/main only when the user explicitly asks for commit and merge.
 ---
 
 ## Overview
 
-You're in a git worktree on a feature branch with uncommitted changes. This skill:
+You're in a git worktree on a feature branch with uncommitted changes. Use this only when the user explicitly asks to commit and merge. This skill:
 1. Commits those changes to the current branch
 2. Merges the branch into master/main — fast-forward if possible, otherwise a regular merge commit
 
@@ -40,8 +40,6 @@ Write a commit message that follows the style from the recent log. Always pass v
 ```bash
 git commit -m "$(cat <<'EOF'
 <type>(<scope>): <description>
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 EOF
 )"
 ```

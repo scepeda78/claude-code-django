@@ -1,23 +1,22 @@
 ---
 name: onboard
-description: Onboard Claude to a new task by exploring the codebase, building context, and preparing to implement. Use when starting a new task, feature, or bug fix that requires understanding the codebase first. Triggers on requests like "onboard me", "get ready for this task", "explore and prepare", "/onboard".
+description: Quickly understand a Django project or task before editing. Use when starting a new feature, bug fix, or unfamiliar repo.
 ---
 
 # Onboard
 
-The user has provided context about the task as an argument. Use it to guide exploration.
+Entender lo necesario antes de tocar codigo.
 
-## Instructions
+## Pasos
 
-> "AI models are geniuses who start from scratch on every task." – Noam Brown
+1. Revisar estructura del repo.
+2. Identificar si usa Docker, Docker Compose, pip, pytest o `manage.py test`.
+3. Leer settings, URLs, apps y tests relacionados con la tarea.
+4. Detectar migraciones pendientes o modelos involucrados.
+5. Explicar en pocas lineas el plan antes de cambios grandes.
 
-Onboard to the current task by:
+## No hacer
 
-- Exploring the codebase thoroughly
-- Asking the user clarifying questions if needed
-
-The goal is to get fully prepared to start working on the task.
-
-Take as long as needed. Overdoing it is better than underdoing it.
-
-Record everything in a `.claude/tasks/[TASK_ID]/onboarding.md` file. This file will be used to onboard in a new session if needed, so make it comprehensive.
+- No crear documentos largos de onboarding salvo que el usuario lo pida.
+- No asumir herramientas que no estan en el repo.
+- No abrir temas de arquitectura fuera del alcance.

@@ -1,32 +1,26 @@
 ---
 name: pr-review
-description: Review a pull request using project standards. Use when the user wants to review a PR, check code quality, or get structured feedback on changes. Accepts a PR number or URL as argument. Triggers on requests like "review PR 123", "check this pull request", "/pr-review 123".
+description: Review a pull request using the project standards. Use when the user asks to review a PR or compare branch changes.
 ---
 
 # PR Review
 
-Review the pull request provided by the user (PR number or URL).
+Revisar un PR con foco en riesgos reales.
 
-## Instructions
+## Pasos
 
-1. **Get PR information**:
-   - Run `gh pr view <PR>` to get PR details
-   - Run `gh pr diff <PR>` to see changes
+1. Obtener diff del PR o branch.
+2. Leer `.claude/agents/code-reviewer.md`.
+3. Revisar bugs, permisos, datos, migraciones y tests.
+4. No exigir herramientas que el repo no usa.
+5. No publicar comentarios en GitHub salvo que el usuario lo pida.
 
-2. **Read review standards**:
-   - Read `.claude/agents/code-reviewer.md` for the review checklist
+## Respuesta
 
-3. **Apply the checklist** to all changed files:
-   - Type hint compliance (no `Any`)
-   - Error handling patterns (no silent exceptions)
-   - N+1 queries avoided (select_related/prefetch_related)
-   - Loading/error/empty states in templates
-   - Test coverage
-   - Documentation updates
+Primero hallazgos:
 
-4. **Provide structured feedback**:
-   - **Critical**: Must fix before merge
-   - **Warning**: Should fix
-   - **Suggestion**: Nice to have
+- **Critico**: debe corregirse.
+- **Riesgo**: conviene corregir.
+- **Sugerencia**: opcional.
 
-5. **Post review comments** using `gh pr comment`
+Despues, indicar tests o revision local pendiente.

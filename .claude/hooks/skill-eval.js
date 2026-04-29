@@ -9,7 +9,7 @@
  * - Intent detection
  * - Content pattern matching
  *
- * Outputs a structured reminder with matched skills and reasons.
+ * Outputs a short, non-blocking reminder with matched skills.
  */
 
 const fs = require('fs');
@@ -48,9 +48,9 @@ function loadRules() {
 function extractFilePaths(prompt) {
   const paths = new Set();
 
-  // Match explicit paths with extensions (.tsx, .ts, .jsx, .js, .json, .gql, .yaml, .yml, .md, .sh)
+  // Match explicit paths with common project file extensions.
   const extensionPattern =
-    /(?:^|\s|["'`])([\w\-./]+\.(?:[tj]sx?|json|gql|ya?ml|md|sh))\b/gi;
+    /(?:^|\s|["'`])([\w\-./]+\.(?:py|html|css|scss|[tj]sx?|json|gql|ya?ml|toml|ini|cfg|md|txt|sh))\b/gi;
   let match;
   while ((match = extensionPattern.exec(prompt)) !== null) {
     paths.add(match[1]);
@@ -58,7 +58,7 @@ function extractFilePaths(prompt) {
 
   // Match paths starting with common directories
   const dirPattern =
-    /(?:^|\s|["'`])((?:src|app|components|screens|hooks|utils|services|navigation|graphql|localization|\.claude|\.github|\.maestro)\/[\w\-./]+)/gi;
+    /(?:^|\s|["'`])((?:apps|app|config|templates|static|tests|requirements|src|components|hooks|utils|services|\.claude|\.github)\/[\w\-./]+)/gi;
   while ((match = dirPattern.exec(prompt)) !== null) {
     paths.add(match[1]);
   }
@@ -333,39 +333,26 @@ function evaluate(prompt) {
 
   // Format output
   let output = '<user-prompt-submit-hook>\n';
-  output += 'SKILL ACTIVATION REQUIRED\n\n';
+  output += 'Skills sugeridas, usa solo las que realmente apliquen:\n';
 
   if (filePaths.length > 0) {
-    output += `Detected file paths: ${filePaths.join(', ')}\n\n`;
+    output += `Archivos detectados: ${filePaths.join(', ')}\n`;
   }
-
-  output += 'Matched skills (ranked by relevance):\n';
 
   for (let i = 0; i < topMatches.length; i++) {
     const match = topMatches[i];
-    const confidence = formatConfidence(match.score, config.minConfidenceScore);
-
-    output += `${i + 1}. ${match.name} (${confidence} confidence)\n`;
+    output += `- ${match.name}\n`;
 
     if (config.showMatchReasons && match.reasons.length > 0) {
-      output += `   Matched: ${match.reasons.slice(0, 3).join(', ')}\n`;
+      output += `  Motivo: ${match.reasons.slice(0, 2).join(', ')}\n`;
     }
   }
 
   if (relatedSkills.length > 0) {
-    output += `\nRelated skills to consider: ${relatedSkills.join(', ')}\n`;
+    output += `Relacionadas: ${relatedSkills.join(', ')}\n`;
   }
 
-  output += '\nBefore implementing, you MUST:\n';
-  output += '1. EVALUATE: State YES/NO for each skill with brief reasoning\n';
-  output += '2. ACTIVATE: Invoke the Skill tool for each YES skill\n';
-  output += '3. IMPLEMENT: Only proceed after skill activation\n';
-  output += '\nExample evaluation:\n';
-  output += `- ${topMatches[0].name}: YES - [your reasoning]\n`;
-  if (topMatches.length > 1) {
-    output += `- ${topMatches[1].name}: NO - [your reasoning]\n`;
-  }
-  output += '\nDO NOT skip this step. Invoke relevant skills NOW.\n';
+  output += 'Mantener la respuesta simple y seguir el CLAUDE.md del proyecto.\n';
   output += '</user-prompt-submit-hook>';
 
   return output;

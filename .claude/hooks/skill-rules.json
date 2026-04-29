@@ -3,8 +3,8 @@
   "version": "2.0",
   "config": {
     "minConfidenceScore": 3,
-    "showMatchReasons": true,
-    "maxSkillsToShow": 5
+    "showMatchReasons": false,
+    "maxSkillsToShow": 3
   },
   "scoring": {
     "keyword": 2,
@@ -16,155 +16,169 @@
     "contextPattern": 2
   },
   "directoryMappings": {
+    "Dockerfile": "django-docker",
+    "docker-compose.yml": "django-docker",
+    "compose.yml": "django-docker",
     "apps/": "django-models",
     "models/": "django-models",
     "templates/": "django-templates",
     "tests/": "pytest-django-patterns",
-    "tasks/": "celery-patterns",
     "forms/": "django-forms"
   },
   "skills": {
+    "django-docker": {
+      "description": "Docker and Docker Compose workflow for Django, migrations, localhost, and reproducible setup",
+      "priority": 10,
+      "triggers": {
+        "keywords": ["docker", "compose", "localhost", "migrate", "migration", "migracion", "migraciones", "runserver"],
+        "keywordPatterns": ["docker\\s+compose", "\\blocalhost\\b", "\\bmigrate\\b", "\\brunserver\\b"],
+        "pathPatterns": ["Dockerfile", "docker-compose.yml", "compose.yml", "**/Dockerfile"],
+        "intentPatterns": [
+          "(?:levantar|run|start).*(?:server|servicio|localhost)",
+          "(?:crear|configurar|arreglar).*(?:docker|compose)",
+          "(?:correr|aplicar).*(?:migracion|migraciones|migrate)"
+        ],
+        "contentPatterns": ["docker compose", "python manage.py migrate", "python manage.py runserver"]
+      }
+    },
     "pytest-django-patterns": {
-      "description": "pytest-django testing patterns and TDD workflow",
+      "description": "pytest and Django test patterns for critical changes",
       "priority": 9,
       "triggers": {
-        "keywords": ["test", "pytest", "fixture", "factory", "mock", "tdd"],
-        "keywordPatterns": ["\\btest(?:s|ing)?\\b", "\\bspec\\b", "\\bfixture\\b"],
-        "pathPatterns": ["**/test_*.py", "**/*_test.py", "**/conftest.py", "**/factories.py"],
+        "keywords": ["test", "tests", "pytest", "fixture", "factory", "critico", "critica"],
+        "keywordPatterns": ["\\btest(?:s|ing)?\\b", "\\bpytest\\b", "\\bfixture\\b"],
+        "pathPatterns": ["**/test_*.py", "**/*_test.py", "**/tests/*.py", "**/conftest.py", "**/factories.py"],
         "intentPatterns": [
-          "(?:write|add|create|fix).*(?:test)",
-          "(?:test).*(?:for|the)",
-          "(?:red.green.refactor|tdd)"
+          "(?:write|add|create|fix|hacer|crear).*(?:test|tests)",
+          "(?:test|tests).*(?:for|para|de)",
+          "(?:cambio|flujo).*(?:critico|critica)"
         ],
-        "contentPatterns": ["@pytest", "def test_", "Factory", "pytest.mark"]
-      },
-      "excludePatterns": ["e2e", "playwright", "selenium"]
+        "contentPatterns": ["@pytest", "def test_", "pytest.mark", "TestCase"]
+      }
     },
     "django-forms": {
-      "description": "Django form handling with validation",
+      "description": "Django form handling with backend validation",
       "priority": 7,
       "triggers": {
-        "keywords": ["form", "modelform", "validation", "clean", "widget"],
-        "keywordPatterns": ["\\bform(?:s)?\\b", "Form\\b", "\\bvalidat(?:e|ion)\\b"],
+        "keywords": ["form", "formulario", "modelform", "validation", "validacion", "clean", "widget"],
+        "keywordPatterns": ["\\bform(?:s|ulario|ularios)?\\b", "Form\\b", "\\bvalidac(?:ion|iones)\\b", "\\bvalidat(?:e|ion)\\b"],
         "pathPatterns": ["**/forms.py", "**/forms/*.py"],
         "intentPatterns": [
-          "(?:create|build|add).*(?:form)",
-          "(?:form).*(?:validation|submit|field)",
-          "(?:validat(?:e|ion)).*(?:schema|rule)"
+          "(?:create|build|add|crear|agregar).*(?:form|formulario)",
+          "(?:form|formulario).*(?:validation|validacion|submit|field|campo)"
         ],
         "contentPatterns": ["forms.Form", "ModelForm", "clean_", "is_valid"]
-      },
-      "excludePatterns": ["format", "transform", "platform"]
+      }
     },
-    "htmx-alpine-patterns": {
-      "description": "HTMX patterns for dynamic Django templates",
-      "priority": 7,
+    "htmx-patterns": {
+      "description": "HTMX patterns for Django templates when the project already uses HTMX",
+      "priority": 6,
       "triggers": {
-        "keywords": ["htmx", "hx-", "partial", "ajax", "dynamic"],
-        "keywordPatterns": ["\\bhtmx\\b", "\\bhx-\\w+\\b", "\\bpartial\\b"],
+        "keywords": ["htmx", "hx-", "partial", "parcial", "ajax", "dynamic"],
+        "keywordPatterns": ["\\bhtmx\\b", "\\bhx-\\w+\\b", "\\bpartial\\b", "\\bparcial\\b"],
         "pathPatterns": ["**/templates/**/_*.html", "**/partials/**"],
         "intentPatterns": [
-          "(?:add|create).*(?:htmx|dynamic|ajax)",
+          "(?:add|create|agregar|crear).*(?:htmx|dynamic|ajax)",
           "(?:htmx).*(?:request|swap|trigger)"
         ],
         "contentPatterns": ["hx-get", "hx-post", "hx-target", "hx-swap", "HX-Request"]
       }
     },
     "django-templates": {
-      "description": "Django template inheritance and patterns",
+      "description": "Django template inheritance, partials, and reusable HTML",
       "priority": 6,
       "triggers": {
-        "keywords": ["template", "html", "extends", "block", "include"],
-        "keywordPatterns": ["\\btemplate\\b", "\\bhtml\\b"],
+        "keywords": ["template", "html", "extends", "block", "include", "plantilla"],
+        "keywordPatterns": ["\\btemplate\\b", "\\bhtml\\b", "\\bplantilla\\b"],
         "pathPatterns": ["**/templates/**/*.html"],
         "intentPatterns": [
-          "(?:create|add).*(?:template|page)",
-          "(?:template).*(?:tag|filter)"
+          "(?:create|add|crear|agregar).*(?:template|page|plantilla|pagina)",
+          "(?:template|plantilla).*(?:tag|filter|filtro)"
         ],
         "contentPatterns": ["{% extends", "{% block", "{% include", "{% for"]
       }
     },
     "celery-patterns": {
-      "description": "Celery task patterns and async processing",
+      "description": "Celery tasks and background jobs",
       "priority": 7,
       "triggers": {
-        "keywords": ["celery", "task", "async", "background", "queue", "worker"],
-        "keywordPatterns": ["\\bcelery\\b", "\\btask\\b", "\\basync\\b", "\\.delay\\("],
+        "keywords": ["celery", "task", "async", "background", "queue", "worker", "tarea"],
+        "keywordPatterns": ["\\bcelery\\b", "\\btask\\b", "\\btarea\\b", "\\basync\\b", "\\.delay\\("],
         "pathPatterns": ["**/tasks.py", "**/tasks/*.py", "**/celery.py"],
         "intentPatterns": [
-          "(?:create|add).*(?:task|background)",
-          "(?:async|background).*(?:job|process)"
+          "(?:create|add|crear|agregar).*(?:task|tarea|background)",
+          "(?:async|background).*(?:job|process|proceso)"
         ],
         "contentPatterns": ["@shared_task", "@celery", ".delay(", ".apply_async"]
       }
     },
     "django-models": {
-      "description": "Django model design and QuerySet optimization",
-      "priority": 7,
+      "description": "Django models, migrations, ORM, and QuerySet optimization",
+      "priority": 8,
       "triggers": {
-        "keywords": ["model", "queryset", "migration", "orm", "database", "query"],
-        "keywordPatterns": ["\\bmodel\\b", "\\bqueryset\\b", "\\bmigration\\b"],
+        "keywords": ["model", "modelo", "queryset", "migration", "migracion", "migraciones", "orm", "database", "query"],
+        "keywordPatterns": ["\\bmodel(?:o|os)?\\b", "\\bqueryset\\b", "\\bmigration\\b", "\\bmigracion(?:es)?\\b"],
         "pathPatterns": ["**/models.py", "**/models/*.py", "**/migrations/*.py"],
         "intentPatterns": [
-          "(?:create|add|design).*(?:model)",
-          "(?:optimize|fix).*(?:query|n\\+1)"
+          "(?:create|add|design|crear|agregar).*(?:model|modelo)",
+          "(?:optimize|fix|optimizar|arreglar).*(?:query|n\\+1|consulta)"
         ],
         "contentPatterns": ["models.Model", "models.CharField", "objects.filter", "select_related"]
       }
     },
     "systematic-debugging": {
-      "description": "Four-phase debugging with root cause analysis",
+      "description": "Debug Django bugs and test failures by finding root cause first",
       "priority": 9,
       "triggers": {
-        "keywords": ["bug", "debug", "fix", "error", "issue", "broken", "failing"],
-        "keywordPatterns": ["\\bbug\\b", "\\bfix\\b", "\\berror\\b", "\\bissue\\b", "doesn't work", "not working"],
+        "keywords": ["bug", "debug", "fix", "error", "broken", "failing", "fallando", "arreglar"],
+        "keywordPatterns": ["\\bbug\\b", "\\bfix\\b", "\\berror\\b", "\\bfallando\\b", "not working", "no funciona"],
         "intentPatterns": [
-          "(?:fix|debug|resolve|investigate).*(?:bug|error|issue|problem)",
-          "(?:why).*(?:not working|broken|failing)",
-          "(?:something).*(?:wrong|broken)"
+          "(?:fix|debug|resolve|investigate|arreglar|revisar).*(?:bug|error|issue|problem|problema)",
+          "(?:why|por que).*(?:not working|broken|failing|no funciona|fallando)"
         ]
       },
       "excludePatterns": ["fix typo", "fix formatting", "fix lint"]
     },
-    "github-actions": {
-      "description": "GitHub Actions CI/CD workflow patterns",
-      "priority": 6,
+    "ticket": {
+      "description": "Work from a GitHub Issue or ticket while keeping scope small",
+      "priority": 7,
       "triggers": {
-        "keywords": ["github action", "workflow", "ci/cd", "pipeline", "ci"],
-        "keywordPatterns": ["github.action", "ci/?cd", "\\bworkflow\\b"],
-        "pathPatterns": [".github/workflows/**", ".github/**/*.yml"],
+        "keywords": ["github issue", "issue", "ticket"],
+        "keywordPatterns": ["github\\s+issue", "issue\\s+#?\\d+", "\\bticket\\b"],
         "intentPatterns": [
-          "(?:create|add|update).*(?:workflow|action|pipeline)",
-          "(?:ci|cd).*(?:pipeline|workflow)"
-        ],
-        "contentPatterns": ["runs-on:", "uses:", "steps:"]
-      }
-    },
-    "worktree-commit-merge": {
-      "description": "Commit worktree changes, merge into master/main, sync branch",
-      "priority": 8,
-      "triggers": {
-        "keywords": ["worktree", "merge", "master", "main"],
-        "keywordPatterns": ["\\bworktree\\b", "\\bmerge.*(?:master|main)\\b"],
-        "intentPatterns": [
-          "commit.*(?:and|then).*merge",
-          "merge.*(?:to|into).*(?:master|main)",
-          "(?:done|finished).*worktree",
-          "we.re done"
+          "(?:work|trabajar|implementar).*(?:issue|ticket)",
+          "(?:issue|ticket).*(?:implementar|resolver|arreglar)"
         ]
       }
     },
-    "documentation": {
-      "description": "Documentation and docstrings",
-      "priority": 3,
+    "code-quality": {
+      "description": "Run configured project checks and summarize real issues",
+      "priority": 5,
       "triggers": {
-        "keywords": ["documentation", "docstring", "readme", "docs"],
-        "keywordPatterns": ["\\bdoc(?:s|umentation)?\\b", "\\breadme\\b"],
-        "pathPatterns": ["**/docs/**", "**/*.md", "**/README*"],
+        "keywords": ["quality", "calidad", "lint", "ruff", "mypy", "pyright"],
+        "keywordPatterns": ["code\\s+quality", "calidad\\s+codigo", "\\blint\\b"],
         "intentPatterns": [
-          "(?:write|add|update).*(?:doc|documentation)",
-          "(?:document).*(?:function|class|api)"
+          "(?:check|revisar|auditar).*(?:quality|calidad|lint)",
+          "(?:run|correr).*(?:checks|lint)"
         ]
+      }
+    },
+    "pr-review": {
+      "description": "Review a GitHub PR",
+      "priority": 5,
+      "triggers": {
+        "keywords": ["pr", "pull request"],
+        "keywordPatterns": ["pull\\s+request", "\\bpr\\s+#?\\d+"],
+        "intentPatterns": ["(?:review|revisar).*(?:pr|pull request)"]
+      }
+    },
+    "pr-summary": {
+      "description": "Summarize current branch changes for a PR",
+      "priority": 4,
+      "triggers": {
+        "keywords": ["summary", "resumen", "pr description"],
+        "keywordPatterns": ["pr\\s+description", "descripcion\\s+pr"],
+        "intentPatterns": ["(?:summarize|resumir).*(?:changes|cambios|branch|rama)"]
       }
     }
   }

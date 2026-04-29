@@ -1,34 +1,36 @@
 ---
 name: pr-summary
-description: Generate a pull request summary for the current branch changes. Use when the user wants to create a PR description, summarize branch changes, or prepare a PR body. Triggers on requests like "summarize my changes", "write a PR description", "what changed in this branch", "/pr-summary".
+description: Generate a short pull request summary for current branch changes. Use when the user asks for a PR description or change summary.
 ---
 
 # PR Summary
 
-Generate a pull request summary for the current branch.
+Preparar un resumen corto de cambios.
 
-## Instructions
+## Pasos
 
-1. **Analyze changes**:
-   ```bash
-   git log main..HEAD --oneline
-   git diff main...HEAD --stat
-   ```
+```bash
+git status
+git diff --stat
+git diff
+```
 
-2. **Generate summary** with:
-   - Brief description of what changed
-   - List of files modified
-   - Breaking changes (if any)
-   - Testing notes
+Si existe rama principal:
 
-3. **Format as PR body**:
-   ```markdown
-   ## Summary
-   [1-3 bullet points describing the changes]
+```bash
+git diff main...HEAD --stat
+```
 
-   ## Changes
-   - [List of significant changes]
+## Formato
 
-   ## Test Plan
-   - [ ] [Testing checklist items]
-   ```
+```markdown
+## Resumen
+- Cambio principal
+- Segundo cambio si aplica
+
+## Tests
+- Comando ejecutado y resultado
+
+## Revision local
+- URL local si quedo levantada
+```
