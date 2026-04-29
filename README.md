@@ -1,6 +1,6 @@
-# Claude Code Django Template
+# Claude/Codex Django Template
 
-Template de configuracion para usar Claude Code en proyectos Django con un flujo simple y revisable.
+Template de configuracion para usar Claude Code y Codex en proyectos Django con un flujo simple y revisable.
 
 ## Filosofia
 
@@ -17,6 +17,7 @@ Template de configuracion para usar Claude Code en proyectos Django con un flujo
 
 ## Archivos principales
 
+- [AGENTS.md](AGENTS.md): entrada principal para Codex.
 - [CLAUDE.md](CLAUDE.md): memoria principal del proyecto.
 - [.claude/settings.json](.claude/settings.json): hooks activos.
 - [.claude/settings.md](.claude/settings.md): explicacion de hooks.
@@ -25,6 +26,15 @@ Template de configuracion para usar Claude Code en proyectos Django con un flujo
 - [.claude/agents/github-workflow.md](.claude/agents/github-workflow.md): ayuda simple con issues, commits y PRs.
 - [.claude/skills/README.md](.claude/skills/README.md): resumen de skills.
 - [.mcp.json](.mcp.json): MCP opcional para GitHub Issues.
+- [.github/workflows/README.md](.github/workflows/README.md): referencia opcional para Actions simples.
+
+## Compatibilidad Claude y Codex
+
+- Claude Code lee `CLAUDE.md` y usa `.claude/`.
+- Codex lee `AGENTS.md`.
+- `AGENTS.md` apunta a `CLAUDE.md` para no duplicar instrucciones.
+- Codex puede leer `.claude/skills/` como documentacion, aunque no sean skills nativas de Codex.
+- Los hooks de `.claude/hooks/` son para Claude Code; Codex no necesita ejecutarlos automaticamente.
 
 ## Flujo esperado
 
@@ -93,9 +103,11 @@ Las skills principales son:
 Copiar estos archivos al proyecto Django:
 
 ```bash
+AGENTS.md
 CLAUDE.md
 .claude/
 .mcp.json
+.github/workflows/README.md
 ```
 
 Luego ajustar nombres de servicios, comandos, base de datos y settings segun el proyecto real.

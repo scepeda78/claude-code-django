@@ -2,6 +2,8 @@
 
 Este archivo define como debe trabajar Claude Code en mis proyectos Django. Usalo como memoria del proyecto y ajusta los comandos si el repo ya tiene una convencion distinta.
 
+Para compatibilidad con Codex, mantener `AGENTS.md` en la raiz del proyecto. `AGENTS.md` debe apuntar a este archivo como fuente principal para no duplicar reglas.
+
 ## Perfil del usuario
 
 - El usuario no es programador experto.
