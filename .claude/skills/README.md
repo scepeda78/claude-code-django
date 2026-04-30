@@ -12,6 +12,7 @@ Skills para proyectos Django con un flujo simple: Docker cuando aplique, migraci
 | [django-models](./django-models/SKILL.md) | Modelos, migraciones, ORM y consultas |
 | [django-forms](./django-forms/SKILL.md) | Formularios y validacion backend |
 | [django-templates](./django-templates/SKILL.md) | Templates, parciales y HTML Django |
+| [ui-ux-pro-max](./ui-ux-pro-max/SKILL.md) | UI/UX, sistemas visuales, responsive, accesibilidad y pulido visual |
 | [htmx-patterns](./htmx-patterns/SKILL.md) | Solo si el proyecto usa HTMX |
 | [celery-patterns](./celery-patterns/SKILL.md) | Tareas en background |
 

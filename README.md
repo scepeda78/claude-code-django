@@ -25,6 +25,8 @@ Template de configuracion para usar Claude Code y Codex en proyectos Django con 
 - [.claude/agents/code-reviewer.md](.claude/agents/code-reviewer.md): checklist de revision.
 - [.claude/agents/github-workflow.md](.claude/agents/github-workflow.md): ayuda simple con issues, commits y PRs.
 - [.claude/skills/README.md](.claude/skills/README.md): resumen de skills.
+- [.codex/skills/ui-ux-pro-max/SKILL.md](.codex/skills/ui-ux-pro-max/SKILL.md): skill nativa de Codex para UI/UX.
+- [.claude/skills/ui-ux-pro-max/SKILL.md](.claude/skills/ui-ux-pro-max/SKILL.md): skill equivalente para Claude Code.
 - [.mcp.json](.mcp.json): MCP opcional para GitHub Issues.
 - [.github/workflows/README.md](.github/workflows/README.md): referencia opcional para Actions simples.
 
@@ -32,6 +34,7 @@ Template de configuracion para usar Claude Code y Codex en proyectos Django con 
 
 - Claude Code lee `CLAUDE.md` y usa `.claude/`.
 - Codex lee `AGENTS.md`.
+- Codex puede usar skills nativas desde `.codex/skills/`.
 - `AGENTS.md` apunta a `CLAUDE.md` para no duplicar instrucciones.
 - Codex puede leer `.claude/skills/` como documentacion, aunque no sean skills nativas de Codex.
 - Los hooks de `.claude/hooks/` son para Claude Code; Codex no necesita ejecutarlos automaticamente.
@@ -96,7 +99,22 @@ Las skills principales son:
 - `django-models`: modelos, migraciones y ORM.
 - `django-forms`: formularios y validacion.
 - `django-templates`: templates Django.
+- `ui-ux-pro-max`: UI/UX, responsive, accesibilidad, colores, tipografia, dashboards, landing pages y pulido visual.
 - `ticket`: trabajo desde GitHub Issues o tickets.
+
+## UI/UX Pro Max
+
+La skill `ui-ux-pro-max` quedo instalada localmente para Codex y Claude desde `nextlevelbuilder/ui-ux-pro-max-skill` v2.5.0. Sirve para consultar estilos, paletas, tipografias, reglas UX, charts y recomendaciones por tipo de producto.
+
+Comandos utiles:
+
+```bash
+python3 .codex/skills/ui-ux-pro-max/scripts/search.py "saas dashboard professional" --design-system -f markdown -p "Mi Proyecto"
+python3 .codex/skills/ui-ux-pro-max/scripts/search.py "responsive forms" --stack html-tailwind
+python3 .codex/skills/ui-ux-pro-max/scripts/search.py "data table accessibility" --domain ux
+```
+
+En Claude, usar la misma idea cambiando `.codex/skills/` por `.claude/skills/`.
 
 ## Uso en otro proyecto
 
@@ -106,6 +124,7 @@ Copiar estos archivos al proyecto Django:
 AGENTS.md
 CLAUDE.md
 .claude/
+.codex/skills/
 .mcp.json
 .github/workflows/README.md
 ```

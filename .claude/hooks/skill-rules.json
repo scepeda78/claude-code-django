@@ -22,6 +22,7 @@
     "apps/": "django-models",
     "models/": "django-models",
     "templates/": "django-templates",
+    "static/": "ui-ux-pro-max",
     "tests/": "pytest-django-patterns",
     "forms/": "django-forms"
   },
@@ -97,6 +98,22 @@
         ],
         "contentPatterns": ["{% extends", "{% block", "{% include", "{% for"]
       }
+    },
+    "ui-ux-pro-max": {
+      "description": "UI/UX design intelligence for Django templates, dashboards, landing pages, responsive layouts, accessibility, colors, typography, and visual polish",
+      "priority": 8,
+      "triggers": {
+        "keywords": ["ui", "ux", "design", "diseno", "interfaz", "visual", "landing", "dashboard", "responsive", "accessibility", "a11y", "palette", "paleta", "typography", "tipografia", "css", "tailwind", "layout", "component", "button", "modal", "card", "table", "chart"],
+        "keywordPatterns": ["\\bui\\b", "\\bux\\b", "landing\\s+page", "\\bresponsive\\b", "\\ba11y\\b", "\\baccessibility\\b", "\\bpalette\\b", "\\btypography\\b", "\\bvisual\\b"],
+        "pathPatterns": ["**/templates/**/*.html", "**/static/**/*.css", "**/*.css", "**/*.scss"],
+        "intentPatterns": [
+          "(?:design|redesign|improve|mejorar|pulir|crear|build|make).*(?:page|pagina|landing|dashboard|ui|ux|interfaz|template|visual)",
+          "(?:review|revisar|check|auditar).*(?:ui|ux|accessibility|a11y|responsive|diseno|visual)",
+          "(?:choose|escoger|definir|crear).*(?:color|paleta|typography|tipografia|layout|design system)"
+        ],
+        "contentPatterns": ["class=", "<button", "aria-", "@media", "prefers-reduced-motion", "grid-template", "display: flex"]
+      },
+      "relatedSkills": ["django-templates", "django-forms"]
     },
     "celery-patterns": {
       "description": "Celery tasks and background jobs",

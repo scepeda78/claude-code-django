@@ -70,6 +70,7 @@ git status
 - Si el hook sugiere una skill, aplicala solo si realmente calza con la tarea.
 - No actives automatizaciones complejas si una lectura directa del repo basta.
 - Prioriza `django-docker`, `pytest-django-patterns` y `systematic-debugging` cuando correspondan.
+- Para cambios de UI, templates, dashboards, landing pages, responsive, accesibilidad, colores, tipografia o pulido visual, usa `ui-ux-pro-max` como apoyo junto con `django-templates`, `django-forms` o `htmx-patterns` cuando aplique.
 
 ## Docker
 
@@ -202,6 +203,13 @@ Antes de terminar una tarea, confirma:
 - Mantener templates simples y reutilizar parciales cuando el repo ya tenga ese patron.
 - Si una vista cambia comportamiento visible, agregar o actualizar tests.
 - Si una migracion falla, no editar migraciones antiguas sin entender la historia del proyecto.
+
+## UI/UX
+
+- `ui-ux-pro-max` esta instalado para Codex en `.codex/skills/ui-ux-pro-max/` y para Claude en `.claude/skills/ui-ux-pro-max/`.
+- Usarlo cuando una tarea cambie como se ve o se usa una interfaz Django: templates, formularios, tablas, dashboards, landing pages, navegacion, estados visuales, responsive, accesibilidad, colores, tipografia o iconos.
+- Preferir HTML/templates Django y CSS/static files existentes. No agregar React, Vue, Tailwind, shadcn/ui u otra cadena frontend si el proyecto no la usa o el usuario no lo pide.
+- Si hace falta generar una guia visual, correr el buscador de la skill con `--design-system` y usar `--stack html-tailwind` como referencia cercana para templates Django.
 
 ## Tests
 
