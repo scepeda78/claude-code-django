@@ -17,9 +17,8 @@ Para compatibilidad con Codex, mantener `AGENTS.md` en la raiz del proyecto. `AG
 
 - Stack principal: Django + Python.
 - Gestor preferido: `pip`.
-- Comandos Django preferidos: `python manage.py ...`.
+- **DOCKER-FIRST**: Todos los comandos Django, migraciones y tests se corren DENTRO de Docker, NUNCA localmente.
 - `pytest` esta bien si el proyecto ya lo usa o si conviene para organizar mejor los tests.
-- Usar Docker o Docker Compose segun la tarea.
 - Mantener o crear archivos Docker para que el proyecto pueda levantarse de forma reproducible.
 - Revisar cambios en `localhost` despues de modificar la app.
 - Correr migraciones antes de levantar el servicio para revision local.
@@ -28,7 +27,7 @@ Para compatibilidad con Codex, mantener `AGENTS.md` en la raiz del proyecto. `AG
 - Para cambios criticos, siempre debe haber tests que cubran el flujo o riesgo principal.
 - El usuario usa GitHub Issues a veces para organizar cambios.
 - El manejo de ramas esta bien; crear una rama de trabajo cuando ayude a mantener ordenado el cambio.
-- El workflow de ramas es util: rama, cambios, tests, localhost, commit y PR si el usuario lo pide.
+- El workflow de ramas es util: rama, cambios, tests en Docker, localhost, commit y PR si el usuario lo pide.
 - GitHub Actions no se crean por defecto; si pueden ayudar, explicarlo primero y pedir confirmacion.
 
 ## Reglas de trabajo
@@ -36,31 +35,36 @@ Para compatibilidad con Codex, mantener `AGENTS.md` en la raiz del proyecto. `AG
 1. Antes de editar, revisa la estructura del proyecto, dependencias, settings, apps, URLs, modelos y tests existentes.
 2. Sigue los patrones actuales del repo. No introduzcas librerias o herramientas nuevas si no son necesarias.
 3. Si falta Docker, crea un `Dockerfile` y, cuando corresponda, un `docker-compose.yml`.
-4. Si cambian modelos, crea migraciones con `python manage.py makemigrations`.
-5. Antes de que el usuario revise en localhost, corre `python manage.py migrate`.
-6. Levanta el servicio local despues de los cambios y entrega la URL, normalmente `http://localhost:8000/`.
-7. Corre tests relevantes. Si existe una suite clara, usa esa. Si no, usa `python manage.py test`.
-8. Si algo falla por configuracion local, explica el bloqueo, el comando que fallo y el siguiente paso recomendado.
-9. No borres ni reviertas cambios del usuario sin permiso.
-10. No uses comandos destructivos como `git reset --hard` o borrados masivos sin confirmacion.
+4. **TODOS** los comandos Python/Django/pytest se corren con `docker compose exec web ...`, NUNCA `python manage.py` a secas.
+5. Si cambian modelos, crea migraciones con `docker compose exec web python manage.py makemigrations`.
+6. Antes de que el usuario revise en localhost, corre `docker compose exec web python manage.py migrate`.
+7. Levanta el servicio local despues de los cambios con Docker y entrega la URL, normalmente `http://localhost:8000/`.
+8. Corre tests relevantes dentro de Docker. Si existe una suite clara, usa esa. Si no, usa `docker compose exec web python manage.py test`.
+9. Si algo falla por configuracion, explica el bloqueo, el comando que fallo (con Docker) y el siguiente paso recomendado.
+10. No borres ni reviertas cambios del usuario sin permiso.
+11. No uses comandos destructivos como `git reset --hard` o borrados masivos sin confirmacion.
 
 ## Git y ramas
 
 - Puedes revisar, crear y cambiar ramas cuando sea util para ordenar el trabajo.
 - Para issues o cambios medianos, usar una rama descriptiva ayuda.
+- **NUNCA commitear automaticamente. Siempre pedir aprobacion explicita del usuario antes de `git commit`.**
 - No hacer push, merge o pull request sin que el usuario lo pida.
-- Antes de commitear, revisar `git status` y stagear solo archivos relevantes.
+- Antes de commitear, revisar `git status` y stagear solo archivos relevantes. Mostrar al usuario que se va a commitear y esperar aprobacion.
 
-Workflow recomendado:
+Workflow recomendado (SIEMPRE CON DOCKER):
 
 ```bash
 git status
 git branch --show-current
 git checkout -b descripcion-corta
 # implementar cambios
-python manage.py migrate
-python manage.py test
-python manage.py runserver 0.0.0.0:8000
+docker compose build
+docker compose up -d
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py test
+docker compose logs --tail=50 web
+# revisar en http://localhost:8000/
 git status
 ```
 
@@ -165,16 +169,7 @@ Si el proyecto usa SQLite, puedes crear Compose solo con el servicio `web` y sin
 
 ## Flujo despues de cada cambio
 
-Despues de modificar codigo, sigue este orden:
-
-```bash
-python manage.py makemigrations   # solo si cambiaron modelos
-python manage.py migrate
-python manage.py test
-python manage.py runserver 0.0.0.0:8000
-```
-
-Si se usa Docker Compose:
+Despues de modificar codigo, **SIEMPRE** sigue este orden CON DOCKER:
 
 ```bash
 docker compose build
@@ -183,7 +178,10 @@ docker compose exec web python manage.py makemigrations   # solo si cambiaron mo
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py test
 docker compose logs --tail=100 web
+# revisar en http://localhost:8000/
 ```
+
+No ejecutes comandos fuera de Docker. Todo debe correr dentro del contenedor.
 
 Antes de terminar una tarea, confirma:
 
@@ -211,6 +209,44 @@ Antes de terminar una tarea, confirma:
 - Preferir HTML/templates Django y CSS/static files existentes. No agregar React, Vue, Tailwind, shadcn/ui u otra cadena frontend si el proyecto no la usa o el usuario no lo pide.
 - Si hace falta generar una guia visual, correr el buscador de la skill con `--design-system` y usar `--stack html-tailwind` como referencia cercana para templates Django.
 
+## CSS y Estilos
+
+**REGLA FUNDAMENTAL: Todos los estilos reutilizables viven en `base.html` como clases CSS semánticas. NO inline styles excepto raras excepciones.**
+
+- Define estilos reutilizables (botones, formularios, cards, colores, espaciado, tipografia) en el `<style>` de `base.html`.
+- Usa nombres de clase semánticos: `.btn`, `.btn-primary`, `.form-field`, `.card`, `.section-title`, etc.
+- Las templates heredan y usan esas clases con `class="..."`.
+- Inline `style="..."` **solo** en casos excepcionales: valores computados desde BD, one-off unico, o estilos dinamicos que varían por dato.
+- Antes de agregar estilos nuevos, revisa si ya existen clases reutilizables en `base.html`.
+
+Ejemplo correcto:
+
+```html
+<!-- base.html -->
+<style>
+  .btn {
+    background: #007bff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+  }
+  .btn-primary { background: #007bff; }
+  .btn-danger { background: #dc3545; }
+</style>
+
+<!-- template.html -->
+<button class="btn btn-primary">Enviar</button>
+<button class="btn btn-danger">Eliminar</button>
+```
+
+No hagas esto:
+
+```html
+<!-- ❌ INCORRECTO -->
+<button style="background: #007bff; padding: 10px 15px; border-radius: 5px; color: white;">Enviar</button>
+```
+
 ## Tests
 
 Los tests son obligatorios para cambios criticos: permisos, pagos, login, datos sensibles, modelos importantes, migraciones, calculos de negocio, reportes, integraciones externas y cualquier flujo que pueda romper trabajo real del usuario.
@@ -221,26 +257,26 @@ Prioridad:
 2. Tests de la app modificada.
 3. Suite completa si el cambio toca modelos, settings, middleware, permisos o flujos criticos.
 
-Comandos comunes:
+**TODOS los tests se corren DENTRO de Docker:**
 
 ```bash
-python manage.py test
-python manage.py test nombre_app
-python manage.py test nombre_app.tests.TestEspecifico
+docker compose exec web python manage.py test
+docker compose exec web python manage.py test nombre_app
+docker compose exec web python manage.py test nombre_app.tests.TestEspecifico
+```
+
+Si el repo usa `pytest`:
+
+```bash
+docker compose exec web pytest
+docker compose exec web pytest nombre_app/tests/
+docker compose exec web pytest nombre_app/tests/test_archivo.py
 ```
 
 Para crear superusuario en proyectos nuevos:
 
 ```bash
-python manage.py createsuperuser
-```
-
-Si el repo usa `pytest`, respeta esa configuracion:
-
-```bash
-pytest
-pytest nombre_app/tests/
-pytest nombre_app/tests/test_archivo.py
+docker compose exec web python manage.py createsuperuser
 ```
 
 No inventes una infraestructura grande de tests para cambios pequenos. Agrega lo minimo necesario para cubrir el riesgo real, pero no dejes cambios criticos sin cobertura.
