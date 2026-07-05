@@ -197,6 +197,19 @@
         "keywordPatterns": ["pr\\s+description", "descripcion\\s+pr"],
         "intentPatterns": ["(?:summarize|resumir).*(?:changes|cambios|branch|rama)"]
       }
+    },
+    "loop-triage": {
+      "description": "Daily report-only triage loop: tests, migrations, git, issues into STATE.md",
+      "priority": 5,
+      "triggers": {
+        "keywords": ["loop", "triage", "triaje", "daily check", "revision diaria"],
+        "keywordPatterns": ["\\bloop\\b", "\\btriage\\b", "STATE\\.md"],
+        "pathPatterns": ["STATE.md"],
+        "intentPatterns": [
+          "(?:corre|run|ejecuta).*(?:triage|triaje|loop)",
+          "(?:revision|chequeo|check).*(?:diari[oa]|daily)"
+        ]
+      }
     }
   }
 }

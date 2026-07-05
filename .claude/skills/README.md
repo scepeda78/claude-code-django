@@ -27,6 +27,7 @@ Skills para proyectos Django con un flujo simple: Docker cuando aplique, migraci
 | [pr-summary](./pr-summary/SKILL.md) | Preparar resumen de cambios |
 | [worktree-commit-merge](./worktree-commit-merge/SKILL.md) | Commit y merge si el usuario lo pide |
 | [skill-creator](./skill-creator/SKILL.md) | Crear o actualizar skills |
+| [loop-triage](./loop-triage/SKILL.md) | Triage diario con /loop, solo reporte |
 
 ## Reglas
 
