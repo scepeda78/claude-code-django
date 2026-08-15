@@ -43,6 +43,8 @@ Para compatibilidad con Codex, mantener `AGENTS.md` en la raiz del proyecto. `AG
 9. Si algo falla por configuracion, explica el bloqueo, el comando que fallo (con Docker) y el siguiente paso recomendado.
 10. No borres ni reviertas cambios del usuario sin permiso.
 11. No uses comandos destructivos como `git reset --hard` o borrados masivos sin confirmacion.
+12. **Cambios quirurgicos**: cada linea que cambies debe trazar directo al pedido del usuario. No "mejores" codigo, comentarios ni formato de al lado. No refactorices lo que no esta roto. Si ves codigo muerto no relacionado, mencionalo; no lo borres. Si tu cambio deja imports o variables sin uso, esos si los limpias.
+13. **Objetivo verificable antes de codear**: convierte la tarea en algo que se pueda comprobar. "Arregla el bug" → "escribe un test que lo reproduce, luego hazlo pasar". "Agrega validacion" → "tests con datos invalidos, luego hazlos pasar". Para tareas de varios pasos, di el plan corto con su verificacion por paso.
 
 ## Git y ramas
 
@@ -202,12 +204,58 @@ Antes de terminar una tarea, confirma:
 - Si una vista cambia comportamiento visible, agregar o actualizar tests.
 - Si una migracion falla, no editar migraciones antiguas sin entender la historia del proyecto.
 
+### Comentarios en templates: `{# #}` es de UNA sola linea
+
+El comentario corto de Django no es multilinea. Si abres `{#` y cierras `#}` en la linea siguiente, Django **no lo reconoce como comentario y escribe el texto tal cual en la pantalla**. En `sistemae2biz` este error aparecio 11 veces; una de ellas imprimio nombres de permisos que ese usuario no debia ver.
+
+```django
+{# bien: una sola linea #}
+
+{% comment %}
+  bien: varias lineas
+{% endcomment %}
+
+{# MAL: esto se imprime en la pagina
+   porque el cierre quedo abajo #}
+```
+
+Antes de dar por terminado un cambio de templates, corre esta guardia:
+
+```bash
+docker compose exec web sh -c "grep -rn --include='*.html' '{#' templates/ */templates/ | grep -v '#}'"
+```
+
+Sin salida = todo bien. Con salida = esos comentarios se estan imprimiendo en pantalla.
+
 ## UI/UX
 
 - `ui-ux-pro-max` esta instalado para Codex en `.codex/skills/ui-ux-pro-max/` y para Claude en `.claude/skills/ui-ux-pro-max/`.
 - Usarlo cuando una tarea cambie como se ve o se usa una interfaz Django: templates, formularios, tablas, dashboards, landing pages, navegacion, estados visuales, responsive, accesibilidad, colores, tipografia o iconos.
 - Preferir HTML/templates Django y CSS/static files existentes. No agregar React, Vue, Tailwind, shadcn/ui u otra cadena frontend si el proyecto no la usa o el usuario no lo pide.
 - Si hace falta generar una guia visual, correr el buscador de la skill con `--design-system` y usar `--stack html-tailwind` como referencia cercana para templates Django.
+
+## Diseño nuevo: se implementa igual, no se adapta
+
+**Cuando el usuario entrega un diseño nuevo —imagenes, mockups, capturas, templates o una especificacion de front— el resultado debe quedar IGUAL a lo entregado.** Esta regla manda sobre la regla 2 («sigue los patrones actuales del repo»): si lo existente no calza, se cambia lo existente.
+
+- **No adaptes el diseño a lo ya construido.** Adapta el codigo al diseño. Si una pantalla actual no se parece, se reescribe.
+- **Crea lo que falte**: campos, migraciones, vistas, endpoints, JS, CSS, datos de prueba. «No existe el modelo» no es motivo para entregar algo parecido; es la lista de lo que hay que construir.
+- **El copy va literal.** Cada titulo, bajada, estado vacio, chip y tooltip se copia palabra por palabra, con sus tildes. No lo mejores ni lo resumas.
+- **Los detalles visuales son el encargo**, no adorno: colores, tonos de chip, `grid-template-columns`, paddings, tamaños de fuente, bordes.
+- **Si un mockup contradice al repo, gana el mockup** — salvo que romperlo sea fallo de seguridad, de permisos o de aislamiento de datos. Ahi se avisa, se explica el choque y se espera decision.
+- **Si una funcionalidad existente estorba al diseño nuevo**, dilo y pregunta antes de borrarla (regla 10 sigue vigente).
+- **Los tests que afirmaban el diseño viejo se actualizan**, no frenan el cambio. Los que protegen comportamiento —permisos, alcance, aislamiento de datos— no se tocan: si esos fallan, el codigo nuevo esta mal.
+
+### Comparar contra la imagen, no contra el codigo
+
+Antes de dar por terminado, **compara la pantalla real renderizada contra la imagen entregada y enumera lo que quedo distinto**. Si algo no se pudo replicar, dilo con el motivo.
+
+Comparar a ojo, o comparar contra los `.html` del paquete en vez de contra las imagenes, entrega pantallas *parecidas* en vez de iguales. Tampoco detecta un contenedor sirviendo codigo viejo. Si el proyecto tiene Selenium o Playwright, saca capturas de verdad a 1440px de ancho y mira el resultado.
+
+Dos cosas que solo se ven mirando **todas las pantallas juntas** en una sesion, nunca leyendo el diff de una rama sola:
+
+- Tablas con `min-width` que empujan el boton principal fuera del borde visible con el menu abierto. Un boton que hay que buscar es un boton que no se aprieta.
+- Avisos o pasos siguientes que desaparecen al cambiar de estado, dejando al usuario sin el camino que la pantalla acababa de prometer.
 
 ## CSS y Estilos
 
@@ -246,6 +294,30 @@ No hagas esto:
 <!-- ❌ INCORRECTO -->
 <button style="background: #007bff; padding: 10px 15px; border-radius: 5px; color: white;">Enviar</button>
 ```
+
+### Tokens semanticos, no hex sueltos
+
+Cuando el proyecto crezca de un puñado de clases, define primero variables CSS con nombre **semantico** (que significa) y no literal (que color es). Asi un estado cambia en un solo lugar y ningun template repite un hex.
+
+```css
+:root {
+  --ok-bg:    #DCFCE7;  --ok-fg:    #15803D;
+  --warn-bg:  #FEF9C3;  --warn-fg:  #854D0E;
+  --alert-bg: #FEE2E2;  --alert-fg: #991B1B;
+  --info-bg:  #E0F2FE;  --info-fg:  #075985;
+  --mute-bg:  #F1F5F9;  --mute-fg:  #475569;
+  --linea: #E2E8F0;
+  --radio: 12px;
+}
+.chip-ok { background: var(--ok-bg); color: var(--ok-fg); border-radius: var(--radio); }
+```
+
+Reglas que se ganaron en la practica:
+
+- Un color decorativo **no puede leerse como un estado**. Si asignas colores a personas (avatares, etiquetas), usalos frios y distintos de la paleta de ok/warn/alert.
+- Un color derivado de un dato se deriva del **id**, no del nombre: si se deriva del nombre, cambia al renombrar a alguien.
+- Todo par fondo/texto debe pasar contraste AA (4.5:1). Verificalo antes de agregar un tono.
+- Elementos que deben seguir funcionando aunque la pantalla este en solo-lectura (cerrar sesion, menu de cuenta) van con `<details>/<summary>`, no con `<button>`: un barrido que deshabilita botones no apaga un `<summary>`.
 
 ## Tests
 
