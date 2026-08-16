@@ -353,12 +353,62 @@ docker compose exec web python manage.py createsuperuser
 
 No inventes una infraestructura grande de tests para cambios pequenos. Agrega lo minimo necesario para cubrir el riesgo real, pero no dejes cambios criticos sin cobertura.
 
+## Quien escribe no verifica
+
+Releer tu propio codigo no es verificarlo: quien lo escribio ya cree que esta bien, y vuelve a leer lo que penso, no lo que quedo. La verificacion la tiene que hacer algo que no vio el codigo escribirse.
+
+En la practica, para cada tipo de cambio hay un verificador que no es tu relectura:
+
+| Cambio | Quien verifica |
+|---|---|
+| Logica, permisos, calculos | Un test que falla si la logica se rompe |
+| Templates / comentarios `{# #}` | El `grep` de guardia |
+| Pantallas contra un diseño | Una captura del navegador, comparada contra la imagen |
+| Cambio mediano ya terminado | El agente `code-reviewer` en contexto limpio |
+
+Si un cambio no tiene ningun verificador de esa lista, no esta verificado — da lo mismo cuantas veces lo hayas leido.
+
+## Evidencia, no casilla marcada
+
+«Tests ejecutados» y «se ve bien» se pueden escribir sin haber hecho nada. Cuando cierres una tarea, **pega la prueba**, no la afirmacion:
+
+- Tests: la linea final real de la salida (`Ran 47 tests in 12.3s ... OK`), no «los tests pasan».
+- Migraciones: la salida de `migrate`, o «no habia migraciones que crear» si `makemigrations` no genero nada.
+- Pantallas: la ruta del archivo de captura, o la URL exacta que miraste.
+- Bug arreglado: el test que lo reproduce, fallando antes y pasando despues.
+
+Si un comando no se pudo correr, dilo con el comando y el error. Una casilla marcada sin evidencia es peor que una casilla vacia: la vacia se nota.
+
 ## GitHub Issues
 
 - Si el usuario menciona un issue, revisa el contexto del issue antes de implementar cuando tengas acceso.
 - Mantiene el alcance alineado con el issue.
 - Puedes sugerir una lista corta de subtareas para registrar en GitHub Issues.
 - No crees GitHub Actions o automatizaciones CI salvo solicitud explicita.
+
+### Si el proyecto SI tiene GitHub Actions: clava las acciones por SHA
+
+Un tag como `@v4` es una etiqueta movil: quien controle el repositorio de esa accion la reapunta y su codigo corre dentro de tu workflow, antes que cualquier guardia tuya, con los permisos y secretos que ese workflow tenga. Un commit no se puede reapuntar.
+
+```yaml
+# mal — etiqueta movil
+uses: actions/checkout@v4
+
+# bien — commit fijo, con la version en el comentario
+uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+```
+
+El SHA se saca asi:
+
+```bash
+gh api repos/actions/checkout/commits/v4 --jq .sha
+```
+
+Prioridad: primero los workflows con `permissions: write` o que usen secretos. Guardia para revisar que no quedo ninguno suelto:
+
+```bash
+grep -rn "uses:.*@v[0-9]" .github/workflows/ || echo "ninguno"
+```
 
 ## Comunicacion esperada
 
@@ -382,7 +432,8 @@ Una tarea esta lista cuando:
 
 - El codigo esta implementado.
 - Las migraciones fueron creadas si hacian falta.
-- `migrate` fue ejecutado antes de levantar localhost.
-- Los tests relevantes fueron ejecutados.
+- `migrate` fue ejecutado antes de levantar localhost — con su salida pegada.
+- Los tests relevantes fueron ejecutados — con la linea final de la salida pegada.
+- El cambio tiene un verificador que no es tu relectura (ver «Quien escribe no verifica»).
 - El servicio esta disponible en localhost o se explico claramente por que no pudo levantarse.
 - El usuario recibio una explicacion clara, sin asumir conocimiento avanzado.
